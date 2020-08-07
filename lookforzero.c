@@ -22,15 +22,19 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  while (fread(buffer, BYTES_PER_READ, 1, fp) == 1) {
-    for (i = 0; i < BYTES_PER_READ; i++) {
+  size_t offset = 0;
+  size_t sz = fread(buffer, 1, BYTES_PER_READ, fp);
+  while (sz > 0) {
+    for (i = 0; i < sz; i++) {
       if (buffer[i] != 0) {
-        fprintf(stderr, "Found non-zero byte, offset %d\n", i);
+        fprintf(stderr, "Found non-zero byte, offset %d\n", offset + i);
         free(buffer);
         fclose(fp);
         return 1;
       }
     }
+    offset += sz;
+    sz = fread(buffer, 1, BYTES_PER_READ, fp);
   }
 
   free(buffer);
